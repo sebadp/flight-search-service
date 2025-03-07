@@ -100,8 +100,8 @@ This project uses **GitHub Actions** to run tests on each `push` or `pull reques
 **Query Parameters:**
 
 - `date` (YYYY-MM-DD) – Travel date
-- `origin` (IATA Code) – Departure city
-- `destination` (IATA Code) – Arrival city
+- `from` (IATA Code) – Departure city
+- `to` (IATA Code) – Arrival city
 
 **Example Request:**
 
