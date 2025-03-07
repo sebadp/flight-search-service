@@ -72,12 +72,6 @@ To run all unit and integration tests:
 pytest
 ```
 
-To run tests with coverage:
-
-```bash
-pytest --cov=services --cov=models --cov=main --cov-report=xml
-```
-
 ---
 
 ## 🐳 Running with Docker
