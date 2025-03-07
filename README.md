@@ -87,7 +87,7 @@ docker run -p 8000:8000 flight-search-service
 
 ## 🚀 Continuous Integration with GitHub Actions
 
-This project uses **GitHub Actions** to run tests on each `push` or `pull request` to `main` or `develop`. You can check the status of the latest builds in the **Actions** tab of your repository.
+This project uses **GitHub Actions** to run tests on each `push` or `pull request` to `main` or `develop`.
 
 ---
 
@@ -138,7 +138,7 @@ This project is licensed under the MIT License.
 
 ## 👨‍💻 Author
 
-**Sebastián** - Developer of Flight Search Service.
+**Sebastián Dávila**
 
 Feel free to contribute, open issues, or suggest improvements! 🚀
 
