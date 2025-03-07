@@ -7,14 +7,20 @@ app = FastAPI()
 @app.get("/journeys/search")
 async def search_flights(
     date: str = Query(..., pattern=r"^\d{4}-\d{2}-\d{2}$"),
-    origin: str = Query(..., min_length=3, max_length=3, pattern=r"^[A-Z]{3}$"),
-    destination: str = Query(..., min_length=3, max_length=3, pattern=r"^[A-Z]{3}$"),
+    origin: str = Query(
+        ..., alias="from", min_length=3, max_length=3, pattern=r"^[A-Z]{3}$"
+    ),
+    destination: str = Query(
+        ..., alias="to", min_length=3, max_length=3, pattern=r"^[A-Z]{3}$"
+    ),
 ):
     """
     FastAPI endpoint to search for available journeys.
 
     Args:
-        params (JourneySearchRequest): Validated request parameters.
+        date (str): The travel date in 'YYYY-MM-DD' format.
+        origin (str): The IATA code of the departure city.
+        destination (str): The IATA code of the arrival city.
 
     Returns:
         JSON response with available journeys.

@@ -70,7 +70,7 @@ def test_api_no_matches(mock_fetch_flight_events, client):
     mock_fetch_flight_events.return_value = []
     date = (now + timedelta(days=2)).strftime("%Y-%m-%d")
     response = client.get(
-        "/journeys/search", params={"date": date, "origin": "BUE", "destination": "SFO"}
+        "/journeys/search", params={"date": date, "from": "BUE", "to": "SFO"}
     )
     assert response.status_code == 200
     assert (
@@ -86,7 +86,7 @@ def test_api_search_valid_direct_flight(mock_fetch_flight_events, client):
 
     response = client.get(
         "/journeys/search",
-        params={"date": FUTURE_DATE_1, "origin": "BUE", "destination": "MAD"},
+        params={"date": FUTURE_DATE_1, "from": "BUE", "to": "MAD"},
     )
 
     assert response.status_code == 200
@@ -103,8 +103,8 @@ def test_api_search_multiple_direct_flights(mock_fetch_flight_events, client):
         "/journeys/search",
         params={
             "date": (now + timedelta(days=2)).strftime("%Y-%m-%d"),
-            "origin": "BUE",
-            "destination": "MIA",
+            "from": "BUE",
+            "to": "MIA",
         },
     )
     assert response.status_code == 200
@@ -121,7 +121,7 @@ def test_api_search_valid_connection(mock_fetch_flight_events, client):
 
     response = client.get(
         "/journeys/search",
-        params={"date": FUTURE_DATE_1, "origin": "BUE", "destination": "PMI"},
+        params={"date": FUTURE_DATE_1, "from": "BUE", "to": "PMI"},
     )
 
     assert response.status_code == 200
@@ -140,8 +140,8 @@ def test_api_long_wait_time(mock_fetch_flight_events, client):
         "/journeys/search",
         params={
             "date": (now + timedelta(days=2)).strftime("%Y-%m-%d"),
-            "origin": "BUE",
-            "destination": "PMI",
+            "from": "BUE",
+            "to": "PMI",
         },
     )
 
@@ -159,7 +159,7 @@ def test_api_total_duration_exceeds_24_hours(mock_fetch_flight_events, client):
     mock_fetch_flight_events.return_value = MOCK_FLIGHTS
     date = (now + timedelta(days=2)).strftime("%Y-%m-%d")
     response = client.get(
-        "/journeys/search", params={"date": date, "origin": "BUE", "destination": "LON"}
+        "/journeys/search", params={"date": date, "from": "BUE", "to": "LON"}
     )
 
     assert response.status_code == 200
@@ -173,29 +173,29 @@ def test_api_invalid_date_format(client):
     """Test API rejects an invalid date format."""
     response = client.get(
         "/journeys/search",
-        params={"date": "12-09-2024", "origin": "BUE", "destination": "MAD"},
+        params={"date": "12-09-2024", "from": "BUE", "to": "MAD"},
     )
 
     assert response.status_code == 422
     assert "String should match pattern" in response.text
 
 
-def test_api_invalid_origin_iata_code(client):
+def test_api_invalid_from_iata_code(client):
     """Test API rejects an invalid IATA code."""
     response = client.get(
         "/journeys/search",
-        params={"date": FUTURE_DATE_1, "origin": "BUEE", "destination": "MAD"},
+        params={"date": FUTURE_DATE_1, "from": "BUEE", "to": "MAD"},
     )
 
     assert response.status_code == 422
     assert "String should have at most 3 characters" in response.text
 
 
-def test_api_invalid_destination_iata_code(client):
+def test_api_invalid_to_iata_code(client):
     """Test API rejects an invalid IATA code."""
     response = client.get(
         "/journeys/search",
-        params={"date": FUTURE_DATE_1, "origin": "BUE", "destination": "AD"},
+        params={"date": FUTURE_DATE_1, "from": "BUE", "to": "AD"},
     )
 
     assert response.status_code == 422
@@ -223,7 +223,7 @@ def test_api_missing_arrival_city(client):
         "/journeys/search",
         params={
             "date": (now + timedelta(days=2)).strftime("%Y-%m-%d"),
-            "origin": "BUE",
+            "from": "BUE",
         },
     )
     assert response.status_code == 422
@@ -234,7 +234,7 @@ def test_api_missing_departure_city(client):
         "/journeys/search",
         params={
             "date": (now + timedelta(days=2)).strftime("%Y-%m-%d"),
-            "destination": "MAD",
+            "to": "MAD",
         },
     )
     assert response.status_code == 422
