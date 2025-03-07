@@ -1,4 +1,6 @@
-from fastapi import FastAPI, Query
+from datetime import datetime
+
+from fastapi import FastAPI, Query, HTTPException
 from services import search_journeys
 
 app = FastAPI()
@@ -19,6 +21,12 @@ async def search_flights(
     Returns:
         JSON response with available journeys.
     """
+    search_date = datetime.strptime(date, "%Y-%m-%d").date()
+    today = datetime.now().date()
+    if search_date < today:
+        raise HTTPException(
+            status_code=400, detail="Search date must be in the future."
+        )
 
     journeys = await search_journeys(date, origin, destination)
 

@@ -238,3 +238,14 @@ def test_api_missing_departure_city(client):
         },
     )
     assert response.status_code == 422
+
+
+def test_api_past_date(client):
+    """Test API rejects a past date."""
+    response = client.get(
+        "/journeys/search",
+        params={"date": PAST_DATE, "origin": "BUE", "destination": "MAD"},
+    )
+
+    assert response.status_code == 400
+    assert "Search date must be in the future" in response.text
