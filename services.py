@@ -51,6 +51,15 @@ async def fetch_flight_events() -> List[FlightEvent]:
 
 
 async def search_journeys(date: str, origin: str, destination: str) -> List[Journey]:
+    """
+    Searches for valid journeys (direct or with one connection) from an origin to a destination.
+    Args:
+        date (str): The travel date in 'YYYY-MM-DD' format.
+        origin (str): The IATA code of the departure city.
+        destination (str): The IATA code of the arrival city.
+    Returns:
+        List[Journey]: A list of valid journeys matching the criteria.
+    """
     all_flights = await fetch_flight_events()
     search_date = datetime.strptime(date, "%Y-%m-%d")
 

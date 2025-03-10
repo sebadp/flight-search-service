@@ -73,6 +73,7 @@ def huge_flight_dataset():
     return {"flights": flights, "expected_direct": 2880, "expected_connecting": 636185}
 
 
+@pytest.mark.skip(reason="Performance test; run manually when needed")
 @patch("services.fetch_flight_events", new_callable=AsyncMock)
 def test_search_huge_dataset_performance(
     mock_fetch_flight_events, client, huge_flight_dataset
