@@ -50,26 +50,25 @@ def huge_flight_dataset():
 
     # Connecting flights (valid layovers)
     for i in range(10000):
-        # First leg
-        flights.append(
-            generate_flight(
-                flight_number=f"CONN_A{i}",
-                dep_city=ORIGIN,
-                arr_city=HUB,
-                minutes_offset=i,
-                duration_hours=2,
-            )
+        # First leg (ORG → HUB)
+        flight_a = generate_flight(
+            flight_number=f"CONN_A{i}",
+            dep_city=ORIGIN,
+            arr_city=HUB,
+            minutes_offset=i,
+            duration_hours=2,
         )
-        # Second leg (valid 2h10m layover)
-        flights.append(
-            generate_flight(
-                flight_number=f"CONN_B{i}",
-                dep_city=HUB,
-                arr_city=DESTINATION,
-                minutes_offset=i + 130,  # 2h10m after first flight arrives
-                duration_hours=1.5,
-            )
+
+        # Second leg (HUB → DST) with EXACTLY 2h10m layover
+        flight_b = generate_flight(
+            flight_number=f"CONN_B{i}",
+            dep_city=HUB,
+            arr_city=DESTINATION,
+            minutes_offset=i + 130,  # 2h10m after flight_a arrives
+            duration_hours=1.5,
         )
+
+        flights.extend([flight_a, flight_b])
 
     return {"flights": flights, "expected_direct": 2880, "expected_connecting": 636185}
 

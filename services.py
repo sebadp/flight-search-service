@@ -64,6 +64,9 @@ async def search_journeys(date: str, origin: str, destination: str) -> List[Jour
 
     # Early exit if origin/destination is invalid
     if origin not in flights_index or destination not in arrival_cities:
+        logger.info(
+            f"No flights available for route {origin} → {destination} on {date}"
+        )
         return []
 
     # Find direct flights
@@ -75,7 +78,7 @@ async def search_journeys(date: str, origin: str, destination: str) -> List[Jour
     ]
 
     # Find connecting flights efficiently
-    connecting_journeys = get_connecting_flights_optimized(
+    connecting_journeys = get_connecting_flights_binary_search(
         flights_index, origin, destination
     )
 
@@ -100,16 +103,15 @@ def build_nested_flights_index(
 ) -> Dict[str, Dict[str, List[FlightEvent]]]:
     index = defaultdict(lambda: defaultdict(list))
     for flight in flights:
-        # Sort flights by departure time for binary search later
         index[flight.departure_city][flight.arrival_city].append(flight)
-    # Sort flights by departure time for each (departure, arrival) pair
+    # Sort flights by departure time for each (departure, arrival) pair for binary search later
     for dep in index:
         for arr in index[dep]:
             index[dep][arr].sort(key=lambda f: f.departure_datetime)
     return index
 
 
-def get_connecting_flights_optimized(
+def get_connecting_flights_binary_search(
     index: Dict[str, Dict[str, List[FlightEvent]]], origin: str, destination: str
 ) -> List[Journey]:
     connecting_journeys = []
