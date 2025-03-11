@@ -37,9 +37,11 @@ async def search_flights(
 
     cached_response = await get_cached_response(redis_client=redis, cache_key=cache_key)
     if cached_response is not None:
-        logger.info(f"Retrieved cached response for {origin} → {destination} on {date}")
+        logger.debug(
+            f"Retrieved cached response for {origin} → {destination} on {date}"
+        )
         return cached_response
-    logger.info(f"No cached response found for {origin} → {destination} on {date}")
+    logger.debug(f"No cached response found for {origin} → {destination} on {date}")
     journeys = await search_journeys(date=date, origin=origin, destination=destination)
     if journeys:
         journeys_serialized = [journey.model_dump() for journey in journeys]
