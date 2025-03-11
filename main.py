@@ -1,7 +1,14 @@
+from logging import getLogger
+
 from fastapi import FastAPI, Query
+from fastapi_cache import FastAPICache
+
+from cache import set_cache_response, get_cached_response, lifespan, generate_cache_key
 from services import search_journeys
 
-app = FastAPI()
+
+app = FastAPI(lifespan=lifespan)
+logger = getLogger(__name__)
 
 
 @app.get("/journeys/search")
@@ -15,7 +22,7 @@ async def search_flights(
     ),
 ):
     """
-    FastAPI endpoint to search for available journeys.
+    FastAPI endpoint to search for available journeys. It uses a cache with REDIS to store the results.
 
     Args:
         date (str): The travel date in 'YYYY-MM-DD' format.
@@ -25,12 +32,26 @@ async def search_flights(
     Returns:
         JSON response with available journeys.
     """
+    cache_key = generate_cache_key(date=date, origin=origin, destination=destination)
+    redis = FastAPICache.get_backend().redis
 
-    journeys = await search_journeys(date, origin, destination)
-
-    if not journeys:
-        return {
+    cached_response = await get_cached_response(redis_client=redis, cache_key=cache_key)
+    if cached_response is not None:
+        logger.debug(
+            f"Retrieved cached response for {origin} → {destination} on {date}"
+        )
+        return cached_response
+    logger.debug(f"No cached response found for {origin} → {destination} on {date}")
+    journeys = await search_journeys(date=date, origin=origin, destination=destination)
+    if journeys:
+        journeys_serialized = [journey.model_dump() for journey in journeys]
+        await set_cache_response(
+            redis=redis, cache_key=cache_key, values=journeys_serialized, expiration=600
+        )
+        return journeys_serialized
+    else:
+        response = {
             "message": f"No journeys available for route {origin} → {destination} on {date}"
         }
-
-    return journeys
+        await set_cache_response(redis, cache_key, response)
+        return response
