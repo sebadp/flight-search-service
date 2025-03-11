@@ -22,3 +22,7 @@ pre-commit==4.1.0
 
 # Environment Variables
 python-dotenv==1.0.1
+
+# Cache
+redis[asyncio]==5.0.4
+fastapi-cache2==0.2.1

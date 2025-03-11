@@ -1,7 +1,5 @@
 # Flight Search Service
 
-&#x20;
-
 A flight search service that finds direct and connecting flights based on user queries. Built using **FastAPI**, **Pydantic**, and **Pytest**.
 
 ---
@@ -10,16 +8,17 @@ A flight search service that finds direct and connecting flights based on user q
 
 - Fetches real-time flight data from an external API
 - Supports searching for **direct flights** and **one-stop connections**
-- Validates search parameters using **Pydantic models**
 - Implements **FastAPI** for a high-performance backend
+- Uses **Redis caching** to improve performance and reduce API calls
+- Validates search parameters using **Pydantic models**
 - Includes **unit and integration tests** with `pytest`
 - Automated CI/CD pipeline using **GitHub Actions**
 - Pre-commit hooks using **black** for code formatting
-- **Dockerized** for easy deployment
+- **Dockerized** and includes **Docker Compose** for easy deployment
 
 ---
 
-## 📦 Installation
+## 🛆 Installation
 
 ### **1. Clone the repository**
 
@@ -37,30 +36,71 @@ source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
 pip install -r requirements.txt
 ```
 
-### **3. Install pre-commit hooks (optional but recommended)**
+### **3. Create and Configure .env File**
+
+This service uses environment variables stored in a `.env` file.
+
+Copy the example file:
 
 ```bash
-pre-commit install
+cp .env.example .env
 ```
 
-This ensures that `black` runs before every commit to enforce code formatting.
+Open `.env` and configure the variables:
+
+```ini
+API_URL=https://mock.apidog.com/m1/814105-793312-default/flight-events
+REDIS_HOST=redis
+REDIS_URL=redis://redis:6379
+MAX_RETRIES=3
+TIMEOUT=5.0
+```
 
 ---
 
 ## 🚀 Running the Service
 
-Start the FastAPI server:
+### **Option 1: Running Locally**
+
+Start the FastAPI server manually:
 
 ```bash
 uvicorn main:app --reload
 ```
 
-### **API Documentation**
+🚨 **Note:** Redis must be running for caching to work. You can start a Redis container with:
+
+```bash
+docker run --name redis -d -p 6379:6379 redis
+```
+
+### **🐋 Option 2: Running with Docker Compose**
+
+To run the service along with Redis in a containerized environment:
+
+```bash
+docker-compose up --build
+```
+
+🚀 This will:
+
+- Start the FastAPI app on http://localhost:8000
+- Start a Redis container for caching
+
+To stop the service:
+
+```bash
+docker-compose down
+```
+
+---
+
+## 🐜 API Documentation
 
 Once the server is running, you can access:
 
-- Swagger UI: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-- ReDoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+- **Swagger UI:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- **ReDoc:** [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
 ---
 
@@ -72,30 +112,36 @@ To run all unit and integration tests:
 pytest
 ```
 
+If you’re using Docker Compose, run tests inside the container:
+
+```bash
+docker exec -it fastapi_app pytest
+```
+
 ---
 
-## 🐳 Running with Docker
+## 🐋 Running with Docker (Standalone)
 
-To run the service inside a Docker container:
+If you want to run the service without Docker Compose, build and run manually:
 
 ```bash
 docker build -t flight-search-service .
-docker run -p 8000:8000 flight-search-service
+docker run --env-file .env -p 8000:8000 flight-search-service
 ```
 
 ---
 
 ## 🚀 Continuous Integration with GitHub Actions
 
-This project uses **GitHub Actions** to run tests on each `push` or `pull request` to `main` or `develop`.
+This project uses **GitHub Actions** to run tests on each push or pull request to `main` or `develop`.
 
 ---
 
-## 📜 API Endpoint
+## 🐜 API Endpoint
 
 ### **Search for flights**
 
-`GET /journeys/search`
+#### **GET /journeys/search**
 
 **Query Parameters:**
 
@@ -103,13 +149,13 @@ This project uses **GitHub Actions** to run tests on each `push` or `pull reques
 - `from` (IATA Code) – Departure city
 - `to` (IATA Code) – Arrival city
 
-**Example Request:**
+#### **Example Request:**
 
 ```bash
 curl "http://127.0.0.1:8000/journeys/search?date=2024-09-12&origin=BUE&destination=MAD"
 ```
 
-**Example Response:**
+#### **Example Response:**
 
 ```json
 [
@@ -130,9 +176,9 @@ curl "http://127.0.0.1:8000/journeys/search?date=2024-09-12&origin=BUE&destinati
 
 ---
 
-## 📄 License
+## 📝 License
 
-This project is licensed under the MIT License.
+This project is licensed under the **MIT License**.
 
 ---
 

@@ -1,6 +1,7 @@
 from httpx import AsyncClient, RequestError
 from asyncio import sleep
 from logging import getLogger, basicConfig, INFO
+from os import getenv
 
 from exceptions import FlightDataFetchError
 from datetime import datetime, timedelta
@@ -11,9 +12,9 @@ from models import FlightEvent, Journey
 basicConfig(level=INFO)
 logger = getLogger(__name__)
 
-API_URL = "https://mock.apidog.com/m1/814105-793312-default/flight-events"
-MAX_RETRIES = 3
-TIMEOUT = 5.0
+API_URL = getenv("API_URL")
+MAX_RETRIES = int(getenv("MAX_RETRIES", 3))
+TIMEOUT = float(getenv("TIMEOUT", 5.0))
 
 
 async def fetch_flight_events() -> List[FlightEvent]:
