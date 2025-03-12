@@ -1,0 +1,51 @@
+service: fastapi-flight-search
+
+provider:
+  name: aws
+  runtime: python3.10
+  region: us-east-1
+  memorySize: 512
+  timeout: 60
+  environment:
+    API_URL: ${env:API_URL, 'https://mock.apidog.com/m1/814105-793312-default/flight-events'}
+    MAX_RETRIES: ${env:MAX_RETRIES, '3'}
+    TIMEOUT: ${env:TIMEOUT, '5.0'}
+
+plugins:
+  - serverless-python-requirements
+
+package:
+  exclude:
+    - node_modules/**
+    - venv/**
+    - tests/**
+
+functions:
+  app:
+    handler: main.lambda_handler
+    events:
+      - http:
+          path: /{proxy+}
+          method: any
+          cors: true
+      - http:
+          path: /openapi.json
+          method: get
+          cors: true
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    useStaticCache: false
+    useDownloadCache: false
+    slim: true
+    strip: true
+    noDeploy:
+      - pytest
+      - pytest-asyncio
+      - black
+      - mypy
+      - typing-extensions
+      - pip
+      - setuptools
+      - wheel

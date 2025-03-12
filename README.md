@@ -9,16 +9,17 @@ A flight search service that finds direct and connecting flights based on user q
 - Fetches real-time flight data from an external API
 - Supports searching for **direct flights** and **one-stop connections**
 - Implements **FastAPI** for a high-performance backend
-- Uses **Redis caching** to improve performance and reduce API calls
+- Implements **rate limiting** using **SlowAPI** (limits requests to **1 per second**)
 - Validates search parameters using **Pydantic models**
 - Includes **unit and integration tests** with `pytest`
 - Automated CI/CD pipeline using **GitHub Actions**
 - Pre-commit hooks using **black** for code formatting
 - **Dockerized** and includes **Docker Compose** for easy deployment
+- Deployed on **AWS Lambda** using the **Serverless Framework**
 
 ---
 
-## 🛆 Installation
+## 🗆 Installation
 
 ### **1. Clone the repository**
 
@@ -50,8 +51,6 @@ Open `.env` and configure the variables:
 
 ```ini
 API_URL=https://mock.apidog.com/m1/814105-793312-default/flight-events
-REDIS_HOST=redis
-REDIS_URL=redis://redis:6379
 MAX_RETRIES=3
 TIMEOUT=5.0
 ```
@@ -68,15 +67,9 @@ Start the FastAPI server manually:
 uvicorn main:app --reload
 ```
 
-🚨 **Note:** Redis must be running for caching to work. You can start a Redis container with:
-
-```bash
-docker run --name redis -d -p 6379:6379 redis
-```
-
 ### **🐋 Option 2: Running with Docker Compose**
 
-To run the service along with Redis in a containerized environment:
+To run the service in a containerized environment:
 
 ```bash
 docker-compose up --build
@@ -85,7 +78,6 @@ docker-compose up --build
 🚀 This will:
 
 - Start the FastAPI app on http://localhost:8000
-- Start a Redis container for caching
 
 To stop the service:
 
@@ -95,7 +87,7 @@ docker-compose down
 
 ---
 
-## 🐜 API Documentation
+## 🦜 API Documentation
 
 Once the server is running, you can access:
 
@@ -104,7 +96,7 @@ Once the server is running, you can access:
 
 ---
 
-## 🛠 Running Tests
+## 🔧 Running Tests
 
 To run all unit and integration tests:
 
@@ -137,7 +129,7 @@ This project uses **GitHub Actions** to run tests on each push or pull request t
 
 ---
 
-## 🐜 API Endpoint
+## 🐛 API Endpoint
 
 ### **Search for flights**
 
@@ -152,7 +144,7 @@ This project uses **GitHub Actions** to run tests on each push or pull request t
 #### **Example Request:**
 
 ```bash
-curl "http://127.0.0.1:8000/journeys/search?date=2024-09-12&origin=BUE&destination=MAD"
+curl "https://6io8r5kf7d.execute-api.us-east-1.amazonaws.com/dev/journeys/search?date=2024-09-12&from=BUE&to=MAD"
 ```
 
 #### **Example Response:**
@@ -172,6 +164,30 @@ curl "http://127.0.0.1:8000/journeys/search?date=2024-09-12&origin=BUE&destinati
         ]
     }
 ]
+```
+
+---
+
+## 🛠 Deploying to AWS Lambda with Serverless Framework
+
+This project is deployed on **AWS Lambda** using the **Serverless Framework**. The API is live at:
+
+**[https://6io8r5kf7d.execute-api.us-east-1.amazonaws.com/dev/](https://6io8r5kf7d.execute-api.us-east-1.amazonaws.com/dev/)**
+
+**Deployment Date:** March 12, 2025
+
+The repository includes a `serverless.yml` file for deployment.
+
+To deploy, run:
+
+```bash
+serverless deploy --verbose
+```
+
+To check logs:
+
+```bash
+serverless logs -f app --tail
 ```
 
 ---
