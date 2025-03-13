@@ -5,6 +5,36 @@ from main import app
 from unittest.mock import AsyncMock, patch
 from models import FlightEvent
 
+
+# --- Fake Redis backend para los tests ---
+class FakeRedis:
+    def __init__(self):
+        self.store = {}
+
+    async def get(self, key):
+        return self.store.get(key)
+
+    async def set(self, key, value):
+        self.store[key] = value
+
+    async def setex(self, key, time, value):
+        # Ignoramos el tiempo de expiración en este fake
+        self.store[key] = value
+
+
+@pytest.fixture(autouse=True)
+def fake_cache(monkeypatch):
+    fake_redis = FakeRedis()
+
+    class FakeBackend:
+        def __init__(self, redis):
+            self.redis = redis
+
+    monkeypatch.setattr(
+        "fastapi_cache.FastAPICache.get_backend", lambda: FakeBackend(fake_redis)
+    )
+
+
 # Generate future dynamic test dates
 TODAY = datetime.now().date()
 FUTURE_DATE_1 = (TODAY + timedelta(days=2)).strftime("%Y-%m-%d")
@@ -59,12 +89,6 @@ MOCK_FLIGHTS = [
 ]
 
 
-@pytest.fixture
-def client():
-    """Provides a FastAPI test client."""
-    return TestClient(app)
-
-
 @patch("services.fetch_flight_events", new_callable=AsyncMock)
 def test_api_no_matches(mock_fetch_flight_events, client):
     mock_fetch_flight_events.return_value = []
@@ -72,9 +96,9 @@ def test_api_no_matches(mock_fetch_flight_events, client):
     response = client.get(
         "/journeys/search", params={"date": date, "from": "BUE", "to": "SFO"}
     )
-    assert response.status_code == 200
+    assert response.status_code == 404
     assert (
-        response.json()["message"]
+        response.json()["detail"]
         == f"No journeys available for route BUE → SFO on {date}"
     )
 
@@ -162,9 +186,9 @@ def test_api_total_duration_exceeds_24_hours(mock_fetch_flight_events, client):
         "/journeys/search", params={"date": date, "from": "BUE", "to": "LON"}
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 404
     assert (
-        response.json()["message"]
+        response.json()["detail"]
         == f"No journeys available for route BUE → LON on {date}"
     )  # The only match exceeds 24 hours, so no valid journeys
 

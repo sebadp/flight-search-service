@@ -22,7 +22,7 @@ class FlightEvent(BaseModel):
         cls, arrival_datetime: datetime, info: ValidationInfo
     ):
         """Ensure arrival time is after departure time."""
-        departure_datetime = info.data["departure_datetime"]  # ✅ FIX: Use `info.data`
+        departure_datetime = info.data["departure_datetime"]
         if departure_datetime and arrival_datetime <= departure_datetime:
             raise ValueError("Arrival time must be after departure time.")
         return arrival_datetime
