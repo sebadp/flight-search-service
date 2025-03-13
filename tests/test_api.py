@@ -89,12 +89,6 @@ MOCK_FLIGHTS = [
 ]
 
 
-@pytest.fixture
-def client():
-    """Provides a FastAPI test client."""
-    return TestClient(app)
-
-
 @patch("services.fetch_flight_events", new_callable=AsyncMock)
 def test_api_no_matches(mock_fetch_flight_events, client):
     mock_fetch_flight_events.return_value = []
