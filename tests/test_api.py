@@ -96,9 +96,9 @@ def test_api_no_matches(mock_fetch_flight_events, client):
     response = client.get(
         "/journeys/search", params={"date": date, "from": "BUE", "to": "SFO"}
     )
-    assert response.status_code == 200
+    assert response.status_code == 404
     assert (
-        response.json()["message"]
+        response.json()["detail"]
         == f"No journeys available for route BUE → SFO on {date}"
     )
 
@@ -186,9 +186,9 @@ def test_api_total_duration_exceeds_24_hours(mock_fetch_flight_events, client):
         "/journeys/search", params={"date": date, "from": "BUE", "to": "LON"}
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 404
     assert (
-        response.json()["message"]
+        response.json()["detail"]
         == f"No journeys available for route BUE → LON on {date}"
     )  # The only match exceeds 24 hours, so no valid journeys
 

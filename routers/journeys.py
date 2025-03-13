@@ -1,6 +1,4 @@
-import os
-
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Query, Request, HTTPException
 
 from .limiter import limiter
 from services import search_journeys
@@ -35,8 +33,9 @@ async def search_flights(
     journeys = await search_journeys(date, origin, destination)
 
     if not journeys:
-        return {
-            "message": f"No journeys available for route {origin} → {destination} on {date}"
-        }
+        raise HTTPException(
+            status_code=404,
+            detail=f"No journeys available for route {origin} → {destination} on {date}",
+        )
 
     return journeys
